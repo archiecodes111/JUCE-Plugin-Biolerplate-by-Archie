@@ -211,3 +211,31 @@ Open `.vscode/launch.json` and choose **"Attach to DAW"**. Start your DAW, press
 
 - **Boilerplate**: Created by [Archie](https://github.com/). Free to use and modify for learning, academic, and commercial plugin development.
 - **JUCE Framework**: JUCE is licensed under the AGPLv3 / Commercial license. See [JUCE License](https://juce.com/legal/juce-8-licence/) for details.
+
+---
+
+## 📝 Changelog
+
+### [v0.1.0] — Major Modernization & Hardening
+- **Added**:
+  - **APVTS Parameter System**: Added `AudioProcessorValueTreeState` with automatable `gain` parameter (-60 dB to +12 dB).
+  - **Full DAW State Persistence**: Implemented XML serialization in `getStateInformation()` and `setStateInformation()` to fix state loss on project reload.
+  - **Parameter Smoothing**: Integrated `juce::dsp::Gain<float>` with a 20ms linear ramp to eliminate audible zipper noise and clicks.
+  - **Lock-Free RMS Metering**: Real-time safe stereo output metering via `std::atomic<float>` readouts.
+  - **Animated UI**: Added dual stereo LED VU meters with decay ballistics running on a 30 FPS UI timer.
+  - **Resizable Vector UI**: Configured responsive bounds and aspect ratio resizing limits (`260x320` to `520x640`).
+  - **CMake FetchContent Fallback**: Automatic JUCE 8 download if `modules/JUCE` is missing—works straight from a ZIP download.
+  - **macOS AU Support**: Added AudioUnit (`AU`) target conditionally on Apple platforms for Logic Pro and GarageBand compatibility.
+  - **VS Code Development Tools**: Added `.vscode/` configurations (`launch.json`, `settings.json`, `extensions.json`) with F5 Standalone debugging and "Attach to DAW" presets.
+  - **GitHub Actions CI/CD**: Added cross-platform automated matrix build workflow for Windows (MSVC), macOS (Universal), and Linux.
+- **Fixed**:
+  - **Windows Permission Crash**: Replaced `COPY_PLUGIN_AFTER_BUILD TRUE` with opt-in `COPY_PLUGIN_TO_SYSTEM` to avoid Admin privilege failures when writing to `C:\Program Files`.
+  - **Linux Link Failures**: Disabled `JUCE_WEB_BROWSER` to remove bulky WebKitGTK and WebView2 dependencies.
+  - **Thread-Safety Violations**: Eliminated direct shared variable manipulation between audio and GUI threads.
+- **Changed**:
+  - Upgraded C++ standard from C++17 to **C++20**.
+  - Streamlined module linking (removed unused `juce_product_unlocking` and `juce_audio_devices`).
+  - Overhauled documentation with practical architecture diagrams, tutorials, and a real-time safety guide.
+
+### [v0.0.1] — Initial Release
+- Initial basic JUCE plugin template with CMake build and standalone/VST3 formats.
