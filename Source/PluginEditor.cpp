@@ -6,7 +6,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 {
     // Title Header
     titleLabel.setText("ARCHIE DSP  |  GAIN", juce::dontSendNotification);
-    titleLabel.setFont(juce::Font(15.0f, juce::Font::bold));
+    titleLabel.setFont(juce::FontOptions(15.0f, juce::Font::bold));
     titleLabel.setJustificationType(juce::Justification::centred);
     titleLabel.setColour(juce::Label::textColourId, juce::Colour(0xfff1f5f9));
     addAndMakeVisible(titleLabel);
@@ -28,7 +28,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
     // Subtitle / Info Label
     gainLabel.setText("OUTPUT METERS", juce::dontSendNotification);
-    gainLabel.setFont(juce::Font(11.0f, juce::Font::bold));
+    gainLabel.setFont(juce::FontOptions(11.0f, juce::Font::bold));
     gainLabel.setJustificationType(juce::Justification::centred);
     gainLabel.setColour(juce::Label::textColourId, juce::Colour(0xff94a3b8));
     addAndMakeVisible(gainLabel);

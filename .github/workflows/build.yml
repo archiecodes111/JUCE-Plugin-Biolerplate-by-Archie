@@ -16,13 +16,10 @@ jobs:
         include:
           - name: Windows (MSVC)
             os: windows-latest
-            artifact_path: build/SimpleGainPlugin_artefacts/Release/VST3/Simple Gain Plugin.vst3
           - name: macOS (Universal)
             os: macos-latest
-            artifact_path: build/SimpleGainPlugin_artefacts/Release/VST3/Simple Gain Plugin.vst3
-          - name: Linux (GCC/Clang)
+          - name: Linux (GCC)
             os: ubuntu-latest
-            artifact_path: build/SimpleGainPlugin_artefacts/Release/VST3/Simple Gain Plugin.vst3
 
     steps:
       - name: Checkout Code
@@ -30,18 +27,27 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Linux Audio Dependencies
+      - name: Install Linux Audio & GUI Dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             libasound2-dev \
             libjack-jackd2-dev \
-            libgl1-mesa-dev \
+            ladspa-sdk \
+            libcurl4-openssl-dev \
+            libfreetype-dev \
+            libfontconfig1-dev \
             libx11-dev \
-            libxrandr-dev \
+            libxcomposite-dev \
+            libxcursor-dev \
+            libxext-dev \
             libxinerama-dev \
-            libxcursor-dev
+            libxrandr-dev \
+            libxrender-dev \
+            libglu1-mesa-dev \
+            mesa-common-dev \
+            ninja-build
 
       - name: Configure CMake
         run: |
@@ -55,5 +61,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SimpleGainPlugin-${{ runner.os }}
-          path: ${{ matrix.artifact_path }}
+          path: |
+            build/SimpleGainPlugin_artefacts/**/VST3
+            build/SimpleGainPlugin_artefacts/**/AU
+            build/SimpleGainPlugin_artefacts/**/Standalone
           if-no-files-found: warn
