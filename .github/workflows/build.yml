@@ -1,0 +1,59 @@
+name: CI Build & Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows (MSVC)
+            os: windows-latest
+            artifact_path: build/SimpleGainPlugin_artefacts/Release/VST3/Simple Gain Plugin.vst3
+          - name: macOS (Universal)
+            os: macos-latest
+            artifact_path: build/SimpleGainPlugin_artefacts/Release/VST3/Simple Gain Plugin.vst3
+          - name: Linux (GCC/Clang)
+            os: ubuntu-latest
+            artifact_path: build/SimpleGainPlugin_artefacts/Release/VST3/Simple Gain Plugin.vst3
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Linux Audio Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev \
+            libjack-jackd2-dev \
+            libgl1-mesa-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Plugin
+        run: |
+          cmake --build build --config Release --parallel
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleGainPlugin-${{ runner.os }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: warn

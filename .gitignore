@@ -1,26 +1,47 @@
-# Build folders
+# Build folders & FetchContent dependencies
 /build/
+/_deps/
+cmake-build-*/
 
-# CMake
+# CMake artifacts & caches
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 compile_commands.json
+CMakeUserPresets.json
 
-# Visual Studio
+# Visual Studio & IDEs
 .vs/
 *.vcxproj.user
+*.suo
+*.user
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# Binaries
+# macOS
+.DS_Store
+
+# Binaries & Intermediate files
 *.exe
 *.dll
+*.so
+*.dylib
 *.lib
+*.a
 *.exp
 *.ilk
 *.pdb
 
-# Plugin binaries
+# Audio Plugin bundles
 *.vst3
+*.vst
+*.component
+*.clap
+*.app
 
 # Logs
 *.log

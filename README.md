@@ -1,293 +1,213 @@
-# JUCE Plugin Boilerplate by Archie
+# 🎛️ Modern JUCE Audio Plugin Boilerplate
 
-A ready-to-use JUCE audio plugin development boilerplate for Visual Studio Code using CMake.
+> **A production-ready, crash-resilient JUCE audio plugin boilerplate for Visual Studio Code & CMake.**  
+> Built to eliminate configuration headaches, avoid beginner pitfalls, and provide a fully working, thread-safe DSP starting point.
 
-Built to simplify the setup process and eliminate the configuration headaches that usually come with setting up JUCE plugin development for the first time.
-
-This boilerplate is designed as a reusable foundation for building audio plugins faster.
-
-## Features
-
-* Pre-configured JUCE integration
-* CMake build system ready
-* Visual Studio Code workflow ready
-* Supports:
-
-  * VST3
-  * Standalone Application
-* Optional assets pipeline (auto-detects assets when added)
-* Clean project structure
-* Ready for DSP implementation
-* Beginner-friendly starter template
+[![CI Build & Test](https://github.com/juce-framework/JUCE/actions/workflows/build.yml/badge.svg)](https://github.com/)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)
+![JUCE](https://img.shields.io/badge/JUCE-8.0-orange.svg)
+![Formats](https://img.shields.io/badge/Formats-VST3%20%7C%20AU%20%7C%20Standalone-green.svg)
+![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 
 ---
 
-## Requirements
+## 🌟 Why This Exists
 
-Before building the project, install:
+Getting started with audio plugin development is intimidating. Beginners often spend days battling:
+- Cryptic CMake generator and kit errors.
+- Unlinked JUCE modules or missing submodules.
+- Thread-safety data races between the audio thread and UI thread.
+- Audible "zipper noise" from unsmoothed parameters.
+- Missing state persistence (losing all plugin settings whenever a DAW project is reloaded).
+- Build failures from permission issues (`COPY_PLUGIN_AFTER_BUILD`).
 
-### Required Software
-
-* Visual Studio Code
-* CMake
-* Visual Studio Build Tools (Desktop Development with C++)
-* Git
-
-### Recommended VS Code Extensions
-
-* C/C++
-* CMake Tools
-* CMake
+**This boilerplate solves all of that out of the box.** Download it, open it in VS Code, press **F5**, and start coding your DSP algorithms immediately.
 
 ---
 
-## Project Structure
+## ✨ Features
+
+- ⚡ **Zero-Friction Setup**: Automatic JUCE dependency handling via CMake `FetchContent` with local submodule fallback. Works immediately even if downloaded as a ZIP!
+- 🎚️ **Production-Ready Parameter System**: Fully implemented `AudioProcessorValueTreeState` (APVTS) for sample-accurate DAW automation and preset recall.
+- 💾 **DAW State Persistence**: Robust XML state saving and loading in `getStateInformation()` and `setStateInformation()`.
+- 🎛️ **Smoothed DSP**: Clean gain processing using `juce::dsp::Gain<float>` with ramped smoothing to eliminate zipper noise and clicking.
+- 📊 **Real-Time Safe Metering**: Lock-free, atomic RMS output meters (`std::atomic<float>`) polled at 30 FPS by the UI thread without audio thread stalls.
+- 🎨 **Modern Dark UI**: Resizable vector interface with dual stereo LED-style RMS level meters.
+- 🍏 **True Cross-Platform**: Supports **VST3**, **Standalone**, and **AudioUnit (AU)** on macOS (Logic Pro / GarageBand compatible).
+- 🛡️ **Safe Build Defaults**: No Administrator permission crashes—standalone binaries and plugin outputs stay in your project build directory.
+- 🐞 **Pre-configured VS Code Debugging**: `.vscode/` includes instant F5 debugging for Standalone and DAW process attachment.
+- 🚀 **GitHub Actions CI**: Automated multi-platform build workflow (Windows, macOS, Linux).
+
+---
+
+## 📁 Project Structure
 
 ```text
 JUCE-Plugin-Boilerplate/
-│
-├── Source/                  # Plugin source files
-│   ├── PluginProcessor.cpp
-│   ├── PluginProcessor.h
-│   ├── PluginEditor.cpp
-│   └── PluginEditor.h
-│
-├── assets/                  # Optional assets folder
-│
+├── .github/
+│   └── workflows/
+│       └── build.yml             # Automated CI for Windows, macOS, Linux
+├── .vscode/
+│   ├── extensions.json           # Recommended VS Code extensions
+│   ├── settings.json             # CMake & Intellisense configuration
+│   └── launch.json               # One-click F5 debug configurations
+├── Source/
+│   ├── PluginProcessor.h         # Audio processor, APVTS, and DSP declarations
+│   ├── PluginProcessor.cpp       # Real-time audio callback & state management
+│   ├── PluginEditor.h            # UI components and timer declarations
+│   └── PluginEditor.cpp          # Vector UI painting, controls & visual meters
+├── assets/                       # (Optional) Drop PNG/WAV/SVG assets here
 ├── modules/
-│   └── JUCE/                # JUCE framework
-│
-├── CMakeLists.txt           # Build configuration
-├── .gitignore               # Git ignore rules
-└── README.md                # Documentation
+│   └── JUCE/                     # Local JUCE framework (or auto-fetched)
+├── .gitignore                    # Comprehensive audio dev ignore rules
+├── CMakeLists.txt                # Modern CMake configuration (C++20)
+└── README.md                     # Documentation
 ```
 
 ---
 
-## Getting Started
+## 🚀 Quick Start (VS Code)
 
-Clone the repository:
+### Prerequisites
+
+Install the following on your system:
+1. **[Visual Studio Code](https://code.visualstudio.com/)**
+2. **[CMake](https://cmake.org/download/)** (version 3.23 or newer)
+3. **C++ Compiler**:
+   - **Windows**: Visual Studio 2022 Build Tools ("Desktop development with C++")
+   - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
+   - **Linux**: `sudo apt install build-essential cmake libasound2-dev libjack-jackd2-dev libgl1-mesa-dev`
+4. **VS Code Extensions**:
+   - `C/C++` (`ms-vscode.cpptools`)
+   - `CMake Tools` (`ms-vscode.cmake-tools`)
+
+---
+
+### Step 1 — Clone the Repository
 
 ```bash
-git clone <repository-url>
-```
-
-Go into the project folder:
-
-```bash
+git clone --recurse-submodules https://github.com/your-username/JUCE-Plugin-Boilerplate.git
 cd JUCE-Plugin-Boilerplate
 ```
-
-Open the folder in Visual Studio Code.
-
----
-
-## Building the Project
-
-### Step 1 — Configure CMake
-
-Open the Command Palette:
-
-```text
-Ctrl + Shift + P
-```
-
-Run:
-
-```text
-CMake: Configure
-```
+*(Even if you forget `--recurse-submodules`, CMake will automatically fetch JUCE for you!)*
 
 ---
 
-### Step 2 — Build
+### Step 2 — Open in Visual Studio Code
 
-Open the Command Palette:
-
-```text
-Ctrl + Shift + P
+Open the project directory in VS Code:
+```bash
+code .
 ```
 
-Run:
-
-```text
-CMake: Build
-```
+VS Code will automatically detect CMake and ask you to select a **Kit / Compiler** (e.g., *Visual Studio Community Release - amd64* or *Clang*).
 
 ---
 
-### Step 3 — Run Standalone Application
+### Step 3 — Build and Debug
 
-Open the Command Palette:
-
-```text
-Ctrl + Shift + P
-```
-
-Run:
-
-```text
-CMake: Run Without Debugging
-```
-
-If everything is configured correctly, the standalone app should launch successfully.
+- **To Build**: Press `F7` or click **Build** in the bottom status bar.
+- **To Run & Debug**: Press `F5` to launch the **Standalone Application**.
+- **To Test in a DAW**: The `.vst3` bundle will be generated inside:
+  ```text
+  build/SimpleGainPlugin_artefacts/Debug/VST3/
+  ```
 
 ---
 
-## Plugin Output Paths
+## 🛠️ How to Add Your Own Parameters
 
-After building:
+This boilerplate provides a clean pattern for adding automatable parameters using `apvts`:
 
-### VST3 Plugin
+### 1. Add the Parameter in `PluginProcessor.cpp`
 
-```text
-build/<ProjectName>_artefacts/Debug/VST3/
+Inside `createParameterLayout()`:
+```cpp
+// Add a Frequency parameter (20 Hz to 20,000 Hz with logarithmic skew)
+params.push_back(std::make_unique<juce::AudioParameterFloat>(
+    juce::ParameterID{"cutoff", 1},
+    "Cutoff",
+    juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.25f), // Skew factor 0.25 for audio log response
+    1000.0f, // Default value
+    juce::AudioParameterFloatAttributes().withLabel("Hz")
+));
 ```
 
-### Standalone Application
+### 2. Read the Parameter in `processBlock()`
 
-```text
-build/<ProjectName>_artefacts/Debug/Standalone/
+```cpp
+const float cutoffHz = apvts.getRawParameterValue("cutoff")->load(std::memory_order_relaxed);
+// Update your filter:
+// filter.setCutoffFrequency(cutoffHz);
 ```
 
----
+### 3. Connect a Slider in `PluginEditor`
 
-## Adding Assets (Optional)
-
-This boilerplate supports optional asset embedding.
-
-Place assets inside:
-
-```text
-assets/
+In `PluginEditor.h`:
+```cpp
+juce::Slider cutoffSlider;
+std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cutoffAttachment;
 ```
 
-Example:
-
-```text
-assets/logo.png
-assets/background.png
-assets/impulse.wav
+In `PluginEditor.cpp`:
+```cpp
+cutoffAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+    processorRef.apvts, "cutoff", cutoffSlider);
+addAndMakeVisible(cutoffSlider);
 ```
 
-After adding assets:
-
-Reconfigure CMake:
-
-```text
-CMake: Configure
-```
-
-Then rebuild.
-
-Assets will automatically be compiled into the plugin binary.
+**That's it!** The parameter is now:
+- Automatable in all major DAWs.
+- Saved & restored automatically when saving the project.
+- Thread-safe and lock-free on the audio thread.
 
 ---
 
-## Creating a New Plugin from this Boilerplate
+## ⚡ Real-Time Audio Golden Rules
 
-Open `CMakeLists.txt` and update:
+When programming audio inside `processBlock()`:
 
-```cmake
-set(PROJECT_NAME "YourPluginName")
-set(PRODUCT_NAME "YourPluginName")
-set(COMPANY_NAME "YourCompany")
-set(BUNDLE_ID "com.yourcompany.yourplugin")
-```
-
-Then rename:
-
-* PluginProcessor files
-* PluginEditor files
-* Processor class names
-* Editor class names
+| ❌ NEVER DO THIS IN `processBlock` | ✅ DO THIS INSTEAD |
+| :--- | :--- |
+| `new`, `malloc`, or `std::vector::push_back` | Pre-allocate all buffers in `prepareToPlay()` |
+| `std::mutex::lock()` or `CriticalSection` | Use `std::atomic<float>` or lock-free FIFOs (`juce::AbstractFifo`) |
+| `std::cout`, file I/O, or socket calls | Push data to a background queue or timer |
+| Raw sudden float multiplications | Use `juce::SmoothedValue` or `juce::dsp::Gain` |
 
 ---
 
-## Recommended Development Workflow
+## 🔧 Build Configuration Options
 
-1. Build Standalone first
-2. Test DSP logic
-3. Build VST3 version
-4. Test inside your DAW
-5. Add parameters
-6. Build UI
-7. Add assets if needed
-8. Final testing
+In `CMakeLists.txt`, customize the project to your liking:
 
----
-
-## Common Issues
-
-### JUCE folder not found
-
-Make sure the JUCE folder exists here:
-
-```text
-modules/JUCE
-```
+| Option / Variable | Default | Description |
+| :--- | :--- | :--- |
+| `PROJECT_NAME` | `"SimpleGainPlugin"` | CMake target name |
+| `PRODUCT_NAME` | `"Simple Gain Plugin"` | User-facing plugin name displayed in DAWs |
+| `COMPANY_NAME` | `"Archie DSP"` | Manufacturer name |
+| `BUNDLE_ID` | `com.archiedsp.SimpleGainPlugin` | Unique bundle identifier |
+| `COPY_PLUGIN_TO_SYSTEM` | `OFF` | Set `ON` to auto-copy to system VST3/AU folder |
+| `JUCE_WEB_BROWSER` | `0` | Keeps plugin lightweight and prevents Linux WebKit dependencies |
 
 ---
 
-### CMake configuration issues
+## ❓ Frequently Asked Questions & Troubleshooting
 
-Delete the build folder:
+### Q: CMake says "No CMAKE_CXX_COMPILER could be found"
+**Fix**: Install Visual Studio Build Tools (Windows) with the "Desktop Development with C++" workload checked, or run `xcode-select --install` (macOS).
 
-```text
-build/
-```
+### Q: My DAW doesn't detect the plugin
+1. Verify whether your DAW scans 64-bit VST3 plugins.
+2. In your DAW's plugin manager, add the folder:
+   `<YourProject>/build/SimpleGainPlugin_artefacts/Debug/VST3`
+3. If on macOS using Logic/GarageBand, ensure you built the **AU** target.
 
-Then run:
-
-```text
-CMake: Configure
-```
-
-again.
+### Q: How do I debug inside my DAW?
+Open `.vscode/launch.json` and choose **"Attach to DAW"**. Start your DAW, press `F5` in VS Code, and select your DAW process from the prompt. You can now set breakpoints directly inside `processBlock()`!
 
 ---
 
-### Plugin not showing in DAW
+## 📄 License & Credits
 
-* Rescan plugins
-* Verify VST3 output path
-* Check your DAW plugin folder settings
-
----
-
-## Built For
-
-This boilerplate can be used as a foundation for:
-
-* Gain Plugins
-* EQ Plugins
-* Compressors
-* Distortion Plugins
-* Delay Plugins
-* Reverb Plugins
-* Utility Plugins
-* Synth Plugins
-
----
-
-## Why This Exists
-
-This boilerplate was created after spending multiple classes debugging setup issues during JUCE plugin development.
-
-The goal is simple:
-
-Set up once. Build faster. Focus on creating.
-
----
-
-## Credits
-
-Created by Archie.
-
-Built for learning, building, and shipping audio plugins.
-
----
-
-## License
-
-Free to use, modify, and build upon.
+- **Boilerplate**: Created by [Archie](https://github.com/). Free to use and modify for learning, academic, and commercial plugin development.
+- **JUCE Framework**: JUCE is licensed under the AGPLv3 / Commercial license. See [JUCE License](https://juce.com/legal/juce-8-licence/) for details.
